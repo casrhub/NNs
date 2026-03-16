@@ -28,8 +28,8 @@ class Neuron:
         self.weights = self.weights - learning_rate * gradient_weights
         self.bias = self.bias - learning_rate * gradient_bias
     
-    def loss (self, output, expected): 
-        return (output - expected)**2
+    def loss (self, output, expected): # BCE loss function 
+         return - (expected * np.log(output) + (1- expected) * np.log(1 - output))
 
 
 
