@@ -34,7 +34,7 @@ for i in range(len(inputs)):
     if rounded == expected[i]:
         correct += 1
     
-    print(f"{inputs[i]} → {y:.4f} → {rounded} (expected: {expected[i]})")
+    print(f"Input: {inputs[i]} Output: {y:.4f} Rounded: {rounded} (expected: {expected[i]})")
 accuracy = correct / len(inputs) * 100
 print(f"\nAccuracy: {accuracy}% ({correct}/{len(inputs)} correct)")
 
