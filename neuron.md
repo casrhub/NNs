@@ -110,6 +110,111 @@ With that, we have a basic neuron. To summarize:
 
 Learning is the process of modifying our learnable parameters repeatedly until we reach a point where we are satisfied with the output of our loss function. The loss function measures how close our predictions are to the actual expected output.
 
-We have two learnable parameters:
-- **Weights**: how much importance each input has on the output
-- **Bias**: how easily or reluctantly the neuron fires
+We have three learnable parameters:
+- **Weights (w₁, w₂)**: how much importance each input has on the output
+- **Bias (b)**: how easily or reluctantly the neuron fires
+
+Before we start learning we need a way to calculate how close we are getting to the real output. This is the **loss function**.
+
+We take the network's output and compare it to the real value. The result is a value representing the "error" or "loss" of those predictions.
+
+Our goal in training is to **minimize this loss value**.
+
+### Loss Function
+
+We use squared error: `L = (output - expected)²`
+
+Why square it?
+- Errors don't cancel out (no negative values)
+- Big errors get punished more than small ones
+- Smooth curve that works well with calculus
+
+### What is a Gradient?
+
+A gradient answers a simple question: 
+
+> "If I increase this weight by a tiny amount, how much does the loss change?"
+
+- **Positive gradient**: Increasing the weight makes loss go UP → decrease the weight
+- **Negative gradient**: Increasing the weight makes loss go DOWN → increase the weight
+- **Zero gradient**: You're at a minimum → no change needed
+
+### The Chain Rule
+
+We can't directly ask "how does changing w₁ affect the loss?" because there are steps in between:
+
+```
+w₁ → z → output → Loss
+```
+
+The **chain rule** says: multiply the derivatives of each step:
+
+```
+dL/dw₁ = (dL/d_output) × (d_output/dz) × (dz/dw₁)
+            Piece 1         Piece 2        Piece 3
+```
+
+- **Piece 1**: How wrong is the prediction? `(output - expected)`
+- **Piece 2**: How sensitive is sigmoid? `output × (1 - output)`
+- **Piece 3**: How much did this weight contribute? `xᵢ` (the input)
+
+### The Error Signal (Efficiency)
+
+Piece 1 and Piece 2 are the **same for all weights**. We compute them once:
+
+```python
+error_signal = (output - expected) * output * (1 - output)
+```
+
+Then multiply by each input for each weight's gradient:
+
+```python
+gradient_weights = error_signal * inputs    # [error_signal × x₁, error_signal × x₂]
+gradient_bias = error_signal                # error_signal × 1 (bias has no input)
+```
+
+### Why gradient_weights and gradient_bias Are Different
+
+| Parameter | Formula | Why |
+|-----------|---------|-----|
+| Weight wᵢ | `error_signal × xᵢ` | Scaled by how much that input contributed |
+| Bias b | `error_signal × 1` | Always contributes equally (just added, not multiplied) |
+
+If an input was 0, that weight gets no update — it didn't contribute to the error!
+
+### Updating Parameters (Gradient Descent)
+
+Once we have gradients, we update parameters to reduce loss:
+
+```python
+weights = weights - learning_rate × gradient_weights
+bias = bias - learning_rate × gradient_bias
+```
+
+**Why subtract?** The gradient points "uphill" (toward higher loss). We want to go "downhill" (lower loss), so we go the opposite direction.
+
+### Learning Rate
+
+The learning rate controls step size:
+
+| Learning Rate | Effect |
+|---------------|--------|
+| Too large (1.0+) | Overshoots minimum, bounces around |
+| Too small (0.001) | Very slow convergence |
+| Just right (0.1-0.5) | Smooth convergence |
+
+### The Training Loop
+
+One complete training cycle:
+
+```
+1. FORWARD PASS → Make prediction with current weights
+2. LOSS → Measure how wrong we are
+3. GRADIENTS → Use chain rule to find direction to improve
+4. UPDATE → Nudge weights/bias to reduce loss
+5. REPEAT for all training examples (one epoch)
+6. REPEAT for many epochs until loss is small
+```
+
+---
+**For detailed explanations with step-by-step calculations, see [gradient_descent_explained.md](gradient_descent_explained.md)**
