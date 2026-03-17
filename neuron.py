@@ -18,18 +18,17 @@ class Neuron:
         return z, y 
 
     def computeGradients(self, inputs, output, expected): 
-        error_signal = (output -expected) * output * (1 - output)
-        gradient_weights = error_signal * np.array(inputs)
+        error_signal = (output -expected) * output * (1 - output) # comes from chain rule 
+        gradient_weights = error_signal * np.array(inputs) # We use the shared computation * Xi
         gradient_bias = error_signal
-            
         return gradient_weights, gradient_bias
 
     def updateWeights(self, gradient_weights, gradient_bias, learning_rate):
-        self.weights = self.weights - learning_rate * gradient_weights
+        self.weights = self.weights - learning_rate * gradient_weights # How big of a step we take into the min
         self.bias = self.bias - learning_rate * gradient_bias
     
-    def loss (self, output, expected): # BCE loss function 
-         return - (expected * np.log(output) + (1- expected) * np.log(1 - output))
+    def loss (self, output, expected): # MSE loss function (squared error)
+        return (output - expected) ** 2
 
 
 
@@ -61,8 +60,10 @@ if __name__ == "__main__":
     learning_rate = 0.5
     # Before update
     print("weights before:", neuron1.weights)
+    print("bias before:", neuron1.bias)
     # Update
     neuron1.updateWeights(grad_w, grad_b, learning_rate)
     # After update
     print("weights after:", neuron1.weights)
+    print("bias after:", neuron1.bias)
 
